@@ -7,8 +7,8 @@
     <ProjectGuid>{2FCFA0F3-951C-48EF-B829-FD3A9FBD8492}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UwpClockControl</RootNamespace>
-    <AssemblyName>UwpClockControl</AssemblyName>
+    <RootNamespace>UwpMaterialClock</RootNamespace>
+    <AssemblyName>UwpMaterialClock</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>
@@ -96,7 +96,15 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ClockButton.cs" />
+    <Compile Include="Controls\ClockItemMember.cs" />
+    <Compile Include="Controls\IClock.cs" />
+    <Compile Include="Converters\BooleanToInvertConverter.cs" />
+    <Compile Include="Converters\BooleanToInvertVisibilityConverter.cs" />
     <Compile Include="Controls\Clock.cs" />
+    <Compile Include="Converters\ClockAmPmDisplayConverter.cs" />
+    <Compile Include="Converters\ClockAngleConverter.cs" />
+    <Compile Include="Extensions\ResourceExtensions.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

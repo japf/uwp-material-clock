@@ -1,23 +1,23 @@
 ﻿<Page
-    x:Class="UwpClockControl.MainPage"
+    x:Class="UwpMaterialClock.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:UwpClockControl"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:UwpClockControl.Controls"
+    xmlns:converters="using:UwpMaterialClock.Converters"
+    xmlns:controls="using:UwpMaterialClock.Controls"
     mc:Ignorable="d">
 
     <Page.Resources>
 
-        <controls:ClockAngleConverter x:Key="ClockHourLineConverter" ItemMember="Hours" />
-        <controls:ClockAngleConverter x:Key="ClockMinuteLineConverter" ItemMember="Minutes" />
-        <controls:ClockAmPmDisplayConverter x:Key="ClockAmPmTimeDisplayConverter" />
-        <controls:BooleanToInvertVisibilityConverter x:Key="booleanToInvertVisibilityConverter"/>
-        <controls:BooleanToInvertConverter x:Key="booleanToInvertConverter"/>
+        <converters:ClockAngleConverter x:Key="ClockHourLineConverter" ItemMember="Hours" />
+        <converters:ClockAngleConverter x:Key="ClockMinuteLineConverter" ItemMember="Minutes" />
+        <converters:ClockAmPmDisplayConverter x:Key="ClockAmPmTimeDisplayConverter" />
+        <converters:BooleanToInvertVisibilityConverter x:Key="booleanToInvertVisibilityConverter"/>
+        <converters:BooleanToInvertConverter x:Key="booleanToInvertConverter"/>
         
         <SolidColorBrush x:Key="ClockPrimaryBrush" Color="#4799E6"/>
-        <SolidColorBrush x:Key="ClockSecondaryBackground" Color="#E5E5E5"/>
+        <SolidColorBrush x:Key="ClockSecondaryBrush" Color="#E5E5E5"/>
         
         <Style x:Key="ClockThumbStyle" TargetType="Thumb">
             <Style.Setters>
@@ -85,11 +85,13 @@
                                         <VisualState x:Name="PointerOver">
                                             <VisualState.Setters>
                                                 <Setter Target="PART_Ellipse.Fill" Value="{StaticResource ClockPrimaryBrush}"/>
+                                                <Setter Target="PART_Textblock.Foreground" Value="White"/>
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="Checked">
                                             <VisualState.Setters>
                                                 <Setter Target="PART_Ellipse.Fill" Value="{StaticResource ClockPrimaryBrush}"/>
+                                                <Setter Target="PART_Textblock.Foreground" Value="White"/>
                                             </VisualState.Setters>
                                         </VisualState>
                                     </VisualStateGroup>
@@ -100,6 +102,7 @@
                                     x:Name="PART_Thumb"
                                     Style="{StaticResource ClockThumbStyle}"/>
                                 <TextBlock
+                                    x:Name="PART_Textblock"
                                     Text="{TemplateBinding Content}"
                                     IsHitTestVisible="False"
                                     VerticalAlignment="Center"
@@ -110,12 +113,57 @@
                 </Setter>
             </Style.Setters>
         </Style>
-                            
+
+        <Style x:Key="ClockRadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Grid x:Name="RootGrid">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal"/>
+                                    <VisualState x:Name="PointerOver"/>
+                                    <VisualState x:Name="Pressed"/>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="CheckStates">
+                                    <VisualState x:Name="Checked">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Fill" Storyboard.TargetName="Ellipse">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource ClockPrimaryBrush}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentPresenter">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="White"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Unchecked"/>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <Ellipse 
+                                x:Name="Ellipse" 
+                                Height="40" 
+                                Width="40"
+                                Fill="Transparent"
+                                HorizontalAlignment="Center"/>
+                            <TextBlock 
+                                x:Name="ContentPresenter" 
+                                Text="{TemplateBinding Content}" 
+                                FontWeight="SemiBold"
+                                Foreground="{TemplateBinding Foreground}" 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style TargetType="controls:Clock">
             <Style.Setters>
                 <Setter Property="Background" Value="White"/>
                 <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="BorderBrush" Value="{StaticResource ClockSecondaryBackground}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ClockSecondaryBrush}"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="controls:Clock">
@@ -128,9 +176,6 @@
                                         <VisualStateGroup.Transitions>
                                             <VisualTransition From="*" To="Normal">
                                                 <Storyboard>
-                                                    <!--<BooleanAnimationUsingKeyFrames Storyboard.TargetName="PART_HoursCanvas" Storyboard.TargetProperty="IsHitTestVisible">
-                                                        <DiscreteBooleanKeyFrame Value="True" KeyTime="0" />
-                                                    </BooleanAnimationUsingKeyFrames>-->
                                                     <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PART_HoursCanvas" Storyboard.TargetProperty="Opacity">
                                                         <DiscreteDoubleKeyFrame Value="0" KeyTime="0" />
                                                         <EasingDoubleKeyFrame Value="1" KeyTime="0:0:0.3">
@@ -155,9 +200,6 @@
                                                             </EasingDoubleKeyFrame.EasingFunction>
                                                         </EasingDoubleKeyFrame>
                                                     </DoubleAnimationUsingKeyFrames>
-                                                    <!--<BooleanAnimationUsingKeyFrames Storyboard.TargetName="PART_MinutesCanvas" Storyboard.TargetProperty="IsHitTestVisible">
-                                                        <DiscreteBooleanKeyFrame Value="False" KeyTime="0" />
-                                                    </BooleanAnimationUsingKeyFrames>-->
                                                     <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PART_MinutesCanvas" Storyboard.TargetProperty="Opacity">
                                                         <DiscreteDoubleKeyFrame Value="1" KeyTime="0" />
                                                         <EasingDoubleKeyFrame Value="0" KeyTime="0:0:0.3">
@@ -186,9 +228,6 @@
                                             </VisualTransition>
                                             <VisualTransition From="Normal" To="Minutes">
                                                 <Storyboard>
-                                                    <!--<BooleanAnimationUsingKeyFrames Storyboard.TargetName="PART_HoursCanvas" Storyboard.TargetProperty="IsHitTestVisible">
-                                                        <DiscreteBooleanKeyFrame Value="False" KeyTime="0" />
-                                                    </BooleanAnimationUsingKeyFrames>-->
                                                     <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PART_HoursCanvas" Storyboard.TargetProperty="Opacity">
                                                         <DiscreteDoubleKeyFrame Value="1" KeyTime="0" />
                                                         <EasingDoubleKeyFrame Value="0" KeyTime="0:0:0.3">
@@ -213,9 +252,6 @@
                                                             </EasingDoubleKeyFrame.EasingFunction>
                                                         </EasingDoubleKeyFrame>
                                                     </DoubleAnimationUsingKeyFrames>
-                                                    <!--<BooleanAnimationUsingKeyFrames Storyboard.TargetName="PART_MinutesCanvas" Storyboard.TargetProperty="IsHitTestVisible">
-                                                        <DiscreteBooleanKeyFrame Value="True" KeyTime="0" />
-                                                    </BooleanAnimationUsingKeyFrames>-->
                                                     <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PART_MinutesCanvas" Storyboard.TargetProperty="Opacity">
                                                         <DiscreteDoubleKeyFrame Value="0" KeyTime="0" />
                                                         <EasingDoubleKeyFrame Value="1" KeyTime="0:0:0.3">
@@ -309,7 +345,7 @@
                                         </Grid>
                                     </Border>
                                     <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
-                                        <Ellipse Width="250" Height="250" Fill="{StaticResource ClockSecondaryBackground}"/>
+                                        <Ellipse Width="250" Height="250" Fill="{StaticResource ClockSecondaryBrush}"/>
                                         <Ellipse Width="8" Height="8" Fill="{StaticResource ClockPrimaryBrush}"/>
                                         <Canvas 
                                             x:Name="PART_HoursCanvas" 
@@ -369,11 +405,13 @@
                                         <RadioButton
                                             Grid.Column="0"
                                             Content="AM"
+                                            Style="{StaticResource ClockRadioButtonStyle}"
                                             IsChecked="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsPostMeridiem, Mode=TwoWay, Converter={StaticResource booleanToInvertConverter}}"
                                             HorizontalAlignment="Center"/>
                                         <RadioButton
                                             Grid.Column="1"
                                             Content="PM"
+                                            Style="{StaticResource ClockRadioButtonStyle}"
                                             IsChecked="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsPostMeridiem, Mode=TwoWay}"
                                             HorizontalAlignment="Center"/>
                                     </Grid>

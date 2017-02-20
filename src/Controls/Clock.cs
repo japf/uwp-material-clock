@@ -3,85 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Windows.Foundation;
-using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
+using UwpMaterialClock.Extensions;
 
-namespace UwpClockControl.Controls
+namespace UwpMaterialClock.Controls
 {
-    public enum ClockItemMember
-    {
-        Hours,
-        Minutes
-    }
-
-    public class ClockButton : ToggleButton
-    {
-        private readonly IClock owner;
-        private readonly double centerX;
-        private readonly double centerY;
-
-        public int Value { get; }
-
-        public ClockItemMember Mode { get; }
-
-        public ClockButton(ClockItemMember mode, int value, double centerX, double centerY, IClock owner)
-        {
-            if (owner == null) throw new ArgumentNullException(nameof(owner));
-
-            this.Mode = mode;
-            this.centerX = centerX;
-            this.centerY = centerY;
-            this.Value = value;
-            this.owner = owner;
-        }
-
-        protected override void OnTapped(TappedRoutedEventArgs e)
-        {
-            this.owner.OnButtonTapped(this);
-        }
-
-        protected override void OnApplyTemplate()
-        {
-            Thumb thumb = this.GetTemplateChild("PART_Thumb") as Thumb;
-            if (thumb != null)
-            {
-                thumb.DragStarted += this.OnDragStarted;
-                thumb.DragDelta += this.OnDragDelta;
-                thumb.DragCompleted += this.OnDragCompleted;
-            }
-        }
-        
-        private void OnDragStarted(object sender, DragStartedEventArgs e)
-        {
-            this.owner.OnButtonDragStarted(this, new DragStartedEventArgs(
-                this.centerX + e.HorizontalOffset - this.ActualWidth / 2.0, 
-                this.centerY + e.VerticalOffset - this.ActualHeight / 2.0));
-        }
-
-        private void OnDragDelta(object sender, DragDeltaEventArgs e)
-        {
-            this.owner.OnButtonDragDelta(this, e);
-        }
-
-        private void OnDragCompleted(object sender, DragCompletedEventArgs e)
-        {
-            this.owner.OnButtonDragCompleted(this, e);
-        }
-    }
-
-    public interface IClock
-    {
-        void OnButtonTapped(ClockButton sender);
-        void OnButtonDragStarted(ClockButton sender, DragStartedEventArgs e);
-        void OnButtonDragDelta(ClockButton sender, DragDeltaEventArgs e);
-        void OnButtonDragCompleted(ClockButton sender, DragCompletedEventArgs e);
-    }
-
     public class Clock : Control, IClock
     {
         private Point dragPosition;
@@ -142,6 +70,9 @@ namespace UwpClockControl.Controls
         {
             var clock = (Clock) d;
 
+            if (!clock.Is24HoursEnabled && clock.Time.Hour > 12)
+                clock.IsPostMeridiem = true;
+
             if (clock.hoursCanvas == null)
                 return; // template hasn't been loaded yet
 
@@ -153,7 +84,7 @@ namespace UwpClockControl.Controls
                 clock.lastTappedButton = clock.hoursCanvas.Children.OfType<ClockButton>().First(b =>
                 {
                     int hours = clock.Time.Hour;
-                    if (clock.IsPostMeridiem)
+                    if (!clock.Is24HoursEnabled && clock.IsPostMeridiem)
                         hours -= 12;
 
                     return b.Value % 24 == hours;
@@ -168,8 +99,6 @@ namespace UwpClockControl.Controls
                 });
             }
 
-            if (!clock.Is24HoursEnabled && clock.Time.Hour > 12)
-                clock.IsPostMeridiem = true;
 
             clock.UpdateHeaderDisplay();
 
@@ -196,6 +125,11 @@ namespace UwpClockControl.Controls
             }
 
             clock.GenerateButtons();
+
+            if (clock.Time.Hour > 12)
+                clock.IsPostMeridiem = true;
+            else
+                clock.IsPostMeridiem = false;
         }
 
         private static void OnIsPostMeridiumChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -243,6 +177,8 @@ namespace UwpClockControl.Controls
 
             this.SetDisplayMode(ClockItemMember.Hours);
             this.UpdateHeaderDisplay();
+
+
         }
 
         private void SetDisplayMode(ClockItemMember mode)
@@ -319,7 +255,7 @@ namespace UwpClockControl.Controls
             if (sender.Mode == ClockItemMember.Hours)
             {
                 int hour = sender.Value % 24;
-                if (this.IsPostMeridiem)
+                if (!this.Is24HoursEnabled && this.IsPostMeridiem)
                     hour += 12;
 
                 this.Time = new DateTime(this.Time.Year, this.Time.Month, this.Time.Day, hour, this.Time.Minute, 0);
@@ -363,9 +299,9 @@ namespace UwpClockControl.Controls
                         (this.canvasCenter.X - this.dragPosition.X) * (this.canvasCenter.X - this.dragPosition.X) +
                         (this.canvasCenter.Y - this.dragPosition.Y) * (this.canvasCenter.Y - this.dragPosition.Y));
 
-                    bool localIsPostMerdiem = sqrt > outerBoundary;
+                    bool localIsPostMeridiem = sqrt > outerBoundary;
 
-                    int hour = (int) Math.Round(6 * angle / Math.PI, MidpointRounding.AwayFromZero) % 12 + (localIsPostMerdiem ? 12 : 0);
+                    int hour = (int) Math.Round(6 * angle / Math.PI, MidpointRounding.AwayFromZero) % 12 + (localIsPostMeridiem ? 12 : 0);
 
                     if (hour == 12)
                         hour = 0;
@@ -397,103 +333,6 @@ namespace UwpClockControl.Controls
         private static bool IsUsing24HoursTime(CultureInfo culture)
         {
             return culture.DateTimeFormat.ShortTimePattern.Contains("h");
-        }
-    }
-    
-    public class ClockAmPmDisplayConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            DateTime time = (DateTime)value;
-
-            if (time.Hour > 12)
-                return "PM";
-
-            return "AM";
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            return null;
-        }
-    }
-
-    public class ClockAngleConverter : IValueConverter
-    {
-        public ClockItemMember ItemMember { get; set; }
-
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            DateTime time = (DateTime)value;
-
-            return this.ItemMember == ClockItemMember.Hours
-                ? ((time.Hour > 13) ? time.Hour - 12 : time.Hour) * (360 / 12)
-                : (time.Minute == 0 ? 60 : time.Minute) * (360 / 60);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            return null;
-        }
-    }
-
-    public class BooleanToInvertVisibilityConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if ((bool) value)
-                return Visibility.Collapsed;
-
-            return Visibility.Visible;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            return null;
-        }
-    }
-
-    public class BooleanToInvertConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if ((bool) value)
-                return false;
-
-            return true;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            return null;
-        }
-    }
-
-    public static class ResourceExtensions
-    {
-        public static T FindResource<T>(this DependencyObject initial, string key)
-        {
-            DependencyObject current = initial;
-
-            while (current != null)
-            {
-                if (current is FrameworkElement)
-                {
-                    if ((current as FrameworkElement).Resources.ContainsKey(key))
-                    {
-                        return (T)(current as FrameworkElement).Resources[key];
-                    }
-                }
-
-                current = VisualTreeHelper.GetParent(current);
-            }
-
-            if (Application.Current.Resources.ContainsKey(key))
-            {
-                return (T)Application.Current.Resources[key];
-            }
-
-            return default(T);
         }
     }
 }
