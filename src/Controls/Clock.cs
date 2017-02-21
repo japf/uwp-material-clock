@@ -15,7 +15,8 @@ namespace UwpMaterialClock.Controls
         private Point dragPosition;
         private Point canvasCenter;
         private ClockItemMember displayMode;
-        private ClockButton lastTappedButton;
+        private ClockButton selectedHoursButton;
+        private ClockButton selectedMinutesButton;
         private Canvas hoursCanvas;
         private Canvas minutesCanvas;
         private TextBlock textBlockHours;
@@ -70,42 +71,58 @@ namespace UwpMaterialClock.Controls
         {
             var clock = (Clock) d;
 
-            if (!clock.Is24HoursEnabled && clock.Time.Hour > 12)
+            if (!clock.Is24HoursEnabled && clock.Time.Hour >= 12)
                 clock.IsPostMeridiem = true;
 
             if (clock.hoursCanvas == null)
                 return; // template hasn't been loaded yet
 
-            if (clock.lastTappedButton != null)
-                clock.lastTappedButton.IsChecked = false;
+            if (clock.selectedHoursButton != null)
+                clock.selectedHoursButton.IsChecked = false;
+            clock.selectedHoursButton = clock.GetClockButtonForTime(ClockItemMember.Hours);
+            clock.selectedHoursButton.IsChecked = true;
 
-            if (clock.displayMode == ClockItemMember.Hours)
+            if (clock.selectedMinutesButton != null)
+                clock.selectedMinutesButton.IsChecked = false;
+            clock.selectedMinutesButton = clock.GetClockButtonForTime(ClockItemMember.Minutes);
+            clock.selectedMinutesButton.IsChecked = true;
+
+            clock.UpdateHeaderDisplay();
+            clock.TimeChanged?.Invoke(clock, EventArgs.Empty);
+        }
+
+        private ClockButton GetClockButtonForTime(ClockItemMember member)
+        {
+            Canvas canvas;
+            Func<ClockButton, bool> predicate;
+            if (member == ClockItemMember.Hours)
             {
-                clock.lastTappedButton = clock.hoursCanvas.Children.OfType<ClockButton>().First(b =>
+                canvas = this.hoursCanvas;
+                predicate = button =>
                 {
-                    int hours = clock.Time.Hour;
-                    if (!clock.Is24HoursEnabled && clock.IsPostMeridiem)
-                        hours -= 12;
+                    int hours = this.Time.Hour;
+                    if (this.Is24HoursEnabled)
+                    {
+                        if (hours == 0)
+                            hours = 24;                        
+                    }
+                    else if (hours == 0)
+                        hours = 12;
+                    else if (hours > 12)
+                        hours = hours - 12;
 
-                    return b.Value % 24 == hours;
-                });
+                    return button.Value == hours;
+                };
             }
             else
             {
-                clock.lastTappedButton = clock.minutesCanvas.Children.OfType<ClockButton>().First(b =>
-                {
-                    int minutes = clock.Time.Minute;
-                    return b.Value % 60 == minutes;
-                });
+                canvas = this.minutesCanvas;
+                predicate = button => button.Value % 60 == this.Time.Minute;
             }
 
-
-            clock.UpdateHeaderDisplay();
-
-            clock.lastTappedButton.IsChecked = true;
-
-            clock.TimeChanged?.Invoke(clock, EventArgs.Empty);
+            return canvas.Children.OfType<ClockButton>().First(predicate);
         }
+
 
         private static void OnIs24HoursEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -124,12 +141,10 @@ namespace UwpMaterialClock.Controls
                 clock.minutesCanvas.Children.Remove(clockButton);
             }
 
-            clock.GenerateButtons();
+            clock.IsPostMeridiem = clock.Time.Hour >= 12;
 
-            if (clock.Time.Hour > 12)
-                clock.IsPostMeridiem = true;
-            else
-                clock.IsPostMeridiem = false;
+            clock.GenerateButtons();
+            clock.SelectAppropriateButtons();
         }
 
         private static void OnIsPostMeridiumChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -144,10 +159,14 @@ namespace UwpMaterialClock.Controls
 
         private void UpdateHeaderDisplay()
         {
-            if (this.Is24HoursEnabled || this.Time.Hour <= 12)
+            if (this.Is24HoursEnabled)
                 this.textBlockHours.Text = this.Time.Hour.ToString("D2");
-            else
+            else if (this.Time.Hour > 12)
                 this.textBlockHours.Text = (this.Time.Hour - 12).ToString("D2");
+            else if (this.Time.Hour == 0)
+                this.textBlockHours.Text = (this.Time.Hour + 12).ToString("D2");
+            else
+                this.textBlockHours.Text = this.Time.Hour.ToString("D2");
 
             this.textBlockMinutes.Text = this.Time.Minute.ToString("D2");
         }
@@ -177,8 +196,16 @@ namespace UwpMaterialClock.Controls
 
             this.SetDisplayMode(ClockItemMember.Hours);
             this.UpdateHeaderDisplay();
+            this.SelectAppropriateButtons();
+        }
 
+        private void SelectAppropriateButtons()
+        {
+            this.selectedHoursButton = this.GetClockButtonForTime(ClockItemMember.Hours);
+            this.selectedHoursButton.IsChecked = true;
 
+            this.selectedMinutesButton = this.GetClockButtonForTime(ClockItemMember.Minutes);
+            this.selectedMinutesButton.IsChecked = true;
         }
 
         private void SetDisplayMode(ClockItemMember mode)
@@ -247,27 +274,41 @@ namespace UwpMaterialClock.Controls
 
         public void OnButtonTapped(ClockButton sender)
         {
-            if (this.lastTappedButton != null)
-                this.lastTappedButton.IsChecked = false;
-
-            sender.IsChecked = !sender.IsChecked;
-
             if (sender.Mode == ClockItemMember.Hours)
             {
-                int hour = sender.Value % 24;
-                if (!this.Is24HoursEnabled && this.IsPostMeridiem)
-                    hour += 12;
+                int hour = sender.Value;
+                if (this.Is24HoursEnabled)
+                {
+                    if (hour == 12)
+                        hour = 0;
+                    else if (hour == 0)
+                        hour = 12;
+                }
+                else
+                {
+                    hour = (hour % 12);
+                    if (this.IsPostMeridiem)
+                        hour += 12;
+                }
 
                 this.Time = new DateTime(this.Time.Year, this.Time.Month, this.Time.Day, hour, this.Time.Minute, 0);
                 this.SetDisplayMode(ClockItemMember.Minutes);
+
+                if (this.selectedHoursButton != null)
+                    this.selectedHoursButton.IsChecked = false;
+                this.selectedHoursButton = sender;
             }
             else
             {
                 int minute = sender.Value % 60;
                 this.Time = new DateTime(this.Time.Year, this.Time.Month, this.Time.Day, this.Time.Hour, minute, 0);
+
+                if (this.selectedMinutesButton != null)
+                    this.selectedMinutesButton.IsChecked = false;
+                this.selectedMinutesButton = sender;
             }
 
-            this.lastTappedButton = sender;
+            sender.IsChecked = !sender.IsChecked;
         }
 
         public void OnButtonDragStarted(ClockButton sender, DragStartedEventArgs e)

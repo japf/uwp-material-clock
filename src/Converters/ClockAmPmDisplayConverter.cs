@@ -9,7 +9,7 @@ namespace UwpMaterialClock.Converters
         {
             DateTime time = (DateTime)value;
 
-            if (time.Hour > 12)
+            if (time.Hour >= 12)
                 return "PM";
 
             return "AM";

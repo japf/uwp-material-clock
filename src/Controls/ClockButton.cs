@@ -1,9 +1,11 @@
 using System;
+using System.Diagnostics;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 
 namespace UwpMaterialClock.Controls
 {
+    [DebuggerDisplay("Value: {Value} Mode: {Mode}")]
     public class ClockButton : ToggleButton
     {
         private readonly IClock owner;
