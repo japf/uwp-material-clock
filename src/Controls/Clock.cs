@@ -6,12 +6,14 @@ using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Shapes;
 using UwpMaterialClock.Extensions;
 
 namespace UwpMaterialClock.Controls
 {
     public class Clock : Control, IClock
     {
+        private const double InnerRatio = 0.7;
         private Point dragPosition;
         private Point canvasCenter;
         private ClockItemMember displayMode;
@@ -21,6 +23,7 @@ namespace UwpMaterialClock.Controls
         private Canvas minutesCanvas;
         private TextBlock textBlockHours;
         private TextBlock textBlockMinutes;
+        private Line hoursLine;
 
         public event EventHandler TimeChanged;
 
@@ -53,7 +56,7 @@ namespace UwpMaterialClock.Controls
             typeof(bool),
             typeof(Clock),
             new PropertyMetadata(false, OnIsPostMeridiumChanged));
-        
+
         public bool IsPostMeridiem
         {
             get { return (bool)this.GetValue(IsPostMeridiemProperty); }
@@ -80,12 +83,12 @@ namespace UwpMaterialClock.Controls
             if (clock.selectedHoursButton != null)
                 clock.selectedHoursButton.IsChecked = false;
             clock.selectedHoursButton = clock.GetClockButtonForTime(ClockItemMember.Hours);
-            clock.selectedHoursButton.IsChecked = true;
+            clock.CheckButton(clock.selectedHoursButton);
 
             if (clock.selectedMinutesButton != null)
                 clock.selectedMinutesButton.IsChecked = false;
             clock.selectedMinutesButton = clock.GetClockButtonForTime(ClockItemMember.Minutes);
-            clock.selectedMinutesButton.IsChecked = true;
+            clock.CheckButton(clock.selectedMinutesButton);
 
             clock.UpdateHeaderDisplay();
             clock.TimeChanged?.Invoke(clock, EventArgs.Empty);
@@ -189,6 +192,10 @@ namespace UwpMaterialClock.Controls
             if (this.minutesCanvas == null)
                 throw new NotSupportedException("Could not find PART_MinutesCanvas in the control template");
 
+            this.hoursLine = this.GetTemplateChild("PART_HoursLine") as Line;
+            if (this.hoursLine == null)
+                throw new NotSupportedException("Could not find PART_HoursLine in the control template");
+
             this.textBlockHours.Tapped += (s, e) => this.SetDisplayMode(ClockItemMember.Hours);
             this.textBlockMinutes.Tapped += (s, e) => this.SetDisplayMode(ClockItemMember.Minutes);
 
@@ -219,7 +226,7 @@ namespace UwpMaterialClock.Controls
             if (this.Is24HoursEnabled)
             {
                 this.GenerateButtons(this.hoursCanvas, Enumerable.Range(13, 12).ToList(), ClockItemMember.Hours, 1, "00");
-                this.GenerateButtons(this.hoursCanvas, Enumerable.Range(1, 12).ToList(), ClockItemMember.Hours, 0.8, "#");
+                this.GenerateButtons(this.hoursCanvas, Enumerable.Range(1, 12).ToList(), ClockItemMember.Hours, InnerRatio, "#");
             }
             else
             {
@@ -248,10 +255,16 @@ namespace UwpMaterialClock.Controls
                 double centerX = this.canvasCenter.X + opposite;
                 double centerY = this.canvasCenter.Y - adjacent;
 
-                ClockButton button = new ClockButton(mode, value, centerX, centerY, this)
+                ClockButton button = new ClockButton(mode, value, centerX, centerY, innerRatio < 1.0, this)
                 {
-                    Content = (value == 60 ? 0 : (value == 24 ? 0 : value)).ToString(format)                    
+                    Content = (value == 60 ? 0 : (value == 24 ? 0 : value)).ToString(format),
                 };
+
+                if (innerRatio < 1.0)
+                {
+                    button.TextOpacity = 0.7;
+                    button.FontSize = 11;
+                }
 
                 if (mode == ClockItemMember.Minutes && (value % 5 != 0))
                 {
@@ -296,7 +309,7 @@ namespace UwpMaterialClock.Controls
 
                 if (this.selectedHoursButton != null)
                     this.selectedHoursButton.IsChecked = false;
-                this.selectedHoursButton = sender;
+                this.selectedHoursButton = sender;                
             }
             else
             {
@@ -308,7 +321,25 @@ namespace UwpMaterialClock.Controls
                 this.selectedMinutesButton = sender;
             }
 
-            sender.IsChecked = !sender.IsChecked;
+            this.CheckButton(sender);
+        }
+
+        private void CheckButton(ClockButton button)
+        {
+            button.IsChecked = !button.IsChecked;
+            if (button.Mode != ClockItemMember.Hours)
+                return;
+
+            if (button.IsInner)
+            {
+                // line usually goes from the center (100, 100) to the middle top (100,0)
+                // but here, we want to adjust Y2 to use the inner ratio
+                this.hoursLine.Y2 = (1 - InnerRatio) * this.hoursCanvas.Height / 2;
+            }
+            else
+            {
+                this.hoursLine.Y2 = 0;
+            }
         }
 
         public void OnButtonDragStarted(ClockButton sender, DragStartedEventArgs e)

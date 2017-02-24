@@ -104,6 +104,7 @@
                                 <TextBlock
                                     x:Name="PART_Textblock"
                                     Text="{TemplateBinding Content}"
+                                    Opacity="{TemplateBinding TextOpacity}"
                                     IsHitTestVisible="False"
                                     VerticalAlignment="Center"
                                     HorizontalAlignment="Center"/>
@@ -184,22 +185,6 @@
                                                             </EasingDoubleKeyFrame.EasingFunction>
                                                         </EasingDoubleKeyFrame>
                                                     </DoubleAnimationUsingKeyFrames>
-                                                    <!--<DoubleAnimationUsingKeyFrames Storyboard.TargetName="HoursScaleTransform" Storyboard.TargetProperty="ScaleX">
-                                                        <DiscreteDoubleKeyFrame Value="1.2" KeyTime="0" />
-                                                        <EasingDoubleKeyFrame Value="1" KeyTime="0:0:0.3">
-                                                            <EasingDoubleKeyFrame.EasingFunction>
-                                                                <SineEase EasingMode="EaseOut" />
-                                                            </EasingDoubleKeyFrame.EasingFunction>
-                                                        </EasingDoubleKeyFrame>
-                                                    </DoubleAnimationUsingKeyFrames>
-                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="HoursScaleTransform" Storyboard.TargetProperty="ScaleY">
-                                                        <DiscreteDoubleKeyFrame Value="1.2" KeyTime="0" />
-                                                        <EasingDoubleKeyFrame Value="1" KeyTime="0:0:0.3">
-                                                            <EasingDoubleKeyFrame.EasingFunction>
-                                                                <SineEase EasingMode="EaseOut" />
-                                                            </EasingDoubleKeyFrame.EasingFunction>
-                                                        </EasingDoubleKeyFrame>
-                                                    </DoubleAnimationUsingKeyFrames>-->
                                                     <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PART_MinutesCanvas" Storyboard.TargetProperty="Opacity">
                                                         <DiscreteDoubleKeyFrame Value="1" KeyTime="0" />
                                                         <EasingDoubleKeyFrame Value="0" KeyTime="0:0:0.3">
@@ -208,22 +193,6 @@
                                                             </EasingDoubleKeyFrame.EasingFunction>
                                                         </EasingDoubleKeyFrame>
                                                     </DoubleAnimationUsingKeyFrames>
-                                                    <!--<DoubleAnimationUsingKeyFrames Storyboard.TargetName="MinutesScaleTransform" Storyboard.TargetProperty="ScaleX">
-                                                        <DiscreteDoubleKeyFrame Value="1" KeyTime="0" />
-                                                        <EasingDoubleKeyFrame Value=".85" KeyTime="0:0:0.3">
-                                                            <EasingDoubleKeyFrame.EasingFunction>
-                                                                <SineEase EasingMode="EaseOut" />
-                                                            </EasingDoubleKeyFrame.EasingFunction>
-                                                        </EasingDoubleKeyFrame>
-                                                    </DoubleAnimationUsingKeyFrames>
-                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="MinutesScaleTransform" Storyboard.TargetProperty="ScaleY">
-                                                        <DiscreteDoubleKeyFrame Value="1" KeyTime="0" />
-                                                        <EasingDoubleKeyFrame Value=".85" KeyTime="0:0:0.3">
-                                                            <EasingDoubleKeyFrame.EasingFunction>
-                                                                <SineEase EasingMode="EaseOut" />
-                                                            </EasingDoubleKeyFrame.EasingFunction>
-                                                        </EasingDoubleKeyFrame>
-                                                    </DoubleAnimationUsingKeyFrames>-->
                                                 </Storyboard>
                                             </VisualTransition>
                                             <VisualTransition From="Normal" To="Minutes">
@@ -236,22 +205,6 @@
                                                             </EasingDoubleKeyFrame.EasingFunction>
                                                         </EasingDoubleKeyFrame>
                                                     </DoubleAnimationUsingKeyFrames>
-                                                    <!--<DoubleAnimationUsingKeyFrames Storyboard.TargetName="HoursScaleTransform" Storyboard.TargetProperty="ScaleX">
-                                                        <DiscreteDoubleKeyFrame Value="1" KeyTime="0" />
-                                                        <EasingDoubleKeyFrame Value="1.2" KeyTime="0:0:0.3">
-                                                            <EasingDoubleKeyFrame.EasingFunction>
-                                                                <SineEase EasingMode="EaseOut" />
-                                                            </EasingDoubleKeyFrame.EasingFunction>
-                                                        </EasingDoubleKeyFrame>
-                                                    </DoubleAnimationUsingKeyFrames>
-                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="HoursScaleTransform" Storyboard.TargetProperty="ScaleY">
-                                                        <DiscreteDoubleKeyFrame Value="1" KeyTime="0" />
-                                                        <EasingDoubleKeyFrame Value="1.2" KeyTime="0:0:0.3">
-                                                            <EasingDoubleKeyFrame.EasingFunction>
-                                                                <SineEase EasingMode="EaseOut" />
-                                                            </EasingDoubleKeyFrame.EasingFunction>
-                                                        </EasingDoubleKeyFrame>
-                                                    </DoubleAnimationUsingKeyFrames>-->
                                                     <DoubleAnimationUsingKeyFrames Storyboard.TargetName="PART_MinutesCanvas" Storyboard.TargetProperty="Opacity">
                                                         <DiscreteDoubleKeyFrame Value="0" KeyTime="0" />
                                                         <EasingDoubleKeyFrame Value="1" KeyTime="0:0:0.3">
@@ -260,22 +213,6 @@
                                                             </EasingDoubleKeyFrame.EasingFunction>
                                                         </EasingDoubleKeyFrame>
                                                     </DoubleAnimationUsingKeyFrames>
-                                                    <!--<DoubleAnimationUsingKeyFrames Storyboard.TargetName="MinutesScaleTransform" Storyboard.TargetProperty="ScaleX">
-                                                        <DiscreteDoubleKeyFrame Value="0.85" KeyTime="0" />
-                                                        <EasingDoubleKeyFrame Value="1" KeyTime="0:0:0.3">
-                                                            <EasingDoubleKeyFrame.EasingFunction>
-                                                                <SineEase EasingMode="EaseOut" />
-                                                            </EasingDoubleKeyFrame.EasingFunction>
-                                                        </EasingDoubleKeyFrame>
-                                                    </DoubleAnimationUsingKeyFrames>
-                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="MinutesScaleTransform" Storyboard.TargetProperty="ScaleY">
-                                                        <DiscreteDoubleKeyFrame Value="0.85" KeyTime="0" />
-                                                        <EasingDoubleKeyFrame Value="1" KeyTime="0:0:0.3">
-                                                            <EasingDoubleKeyFrame.EasingFunction>
-                                                                <SineEase EasingMode="EaseOut" />
-                                                            </EasingDoubleKeyFrame.EasingFunction>
-                                                        </EasingDoubleKeyFrame>
-                                                    </DoubleAnimationUsingKeyFrames>-->
                                                 </Storyboard>
                                             </VisualTransition>
                                         </VisualStateGroup.Transitions>
@@ -354,6 +291,7 @@
                                             Margin="30"
                                             RenderTransformOrigin=".5,.5">
                                             <Line
+                                                x:Name="PART_HoursLine"
                                                 X1="100" Y1="100"
                                                 X2="100" Y2="0"
                                                 RenderTransformOrigin="0.5,0.5"
@@ -377,6 +315,7 @@
                                             Margin="30"
                                             RenderTransformOrigin=".5,.5">
                                             <Line
+                                                x:Name="PART_MinutesLine"
                                                 X1="100" Y1="100"
                                                 X2="100" Y2="0"
                                                 RenderTransformOrigin="0.5,0.5"
@@ -429,12 +368,34 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <controls:Clock x:Name="clock" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <StackPanel Grid.Row="1" HorizontalAlignment="Center">
-            <CheckBox Content="Use 24 hours" IsChecked="{Binding ElementName=clock, Path=Is24HoursEnabled, Mode=TwoWay}"/>
-            <CheckBox Content="PM" IsChecked="{Binding ElementName=clock, Path=IsPostMeridiem}"/>
-            <TextBlock Text="{Binding ElementName=clock, Path=Time}"/>
-            <TimePicker x:Name="timePicker"/>
+        <controls:Clock 
+            x:Name="clock" 
+            Grid.Row="0" 
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Center"/>
+        <StackPanel 
+            Grid.Row="1" 
+            HorizontalAlignment="Center" 
+            Margin="20">
+            <CheckBox 
+                Content="Use 24 hours" 
+                IsChecked="{Binding ElementName=clock, Path=Is24HoursEnabled, Mode=TwoWay}"/>
+            <CheckBox 
+                Content="PM" 
+                IsEnabled="False"
+                IsChecked="{Binding ElementName=clock, Path=IsPostMeridiem}"/>
+            <TextBlock 
+                Text="{Binding ElementName=clock, 
+                Path=Time}"/>
+            <TimePicker 
+                x:Name="timePicker"/>
+
+            <TextBlock 
+                Margin="0,20,0,0"
+                Text="Issues, pull-request and more :-)"/>
+            <HyperlinkButton 
+                Content="https://github.com/japf/uwp-material-clock"
+                NavigateUri="https://github.com/japf/uwp-material-clock"/>
         </StackPanel>
     </Grid>
 </Page>

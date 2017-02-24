@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 
@@ -12,18 +13,33 @@ namespace UwpMaterialClock.Controls
         private readonly double centerX;
         private readonly double centerY;
 
+        public bool IsInner { get; }
+
         public int Value { get; }
 
         public ClockItemMember Mode { get; }
 
-        public ClockButton(ClockItemMember mode, int value, double centerX, double centerY, IClock owner)
+        public double TextOpacity
+        {
+            get { return (double) this.GetValue(TextOpacityProperty); }
+            set { this.SetValue(TextOpacityProperty, value); }
+        }
+
+        public static readonly DependencyProperty TextOpacityProperty = DependencyProperty.Register(
+            "TextOpacity", 
+            typeof(double), 
+            typeof(ClockButton), new PropertyMetadata(1.0));
+
+        public ClockButton(ClockItemMember mode, int value, double centerX, double centerY, bool isInner, IClock owner)
         {
             if (owner == null) throw new ArgumentNullException(nameof(owner));
 
             this.Mode = mode;
+            this.IsInner = isInner;
+            this.Value = value;
+
             this.centerX = centerX;
             this.centerY = centerY;
-            this.Value = value;
             this.owner = owner;
         }
 
