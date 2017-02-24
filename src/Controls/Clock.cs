@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Windows.Foundation;
+using Windows.Globalization.DateTimeFormatting;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -67,7 +68,7 @@ namespace UwpMaterialClock.Controls
         {
             // default to the system settings at initialization
             // can be overriden later
-            this.Is24HoursEnabled = false; // IsUsing24HoursTime(CultureInfo.CurrentCulture);
+            this.Is24HoursEnabled = IsUsing24HoursTime();
         }
 
         private static void OnTimeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -131,6 +132,9 @@ namespace UwpMaterialClock.Controls
         {
             var clock = (Clock)d;
 
+            if (clock.hoursCanvas == null)
+                return; // template hasn't been loaded yet
+
             clock.UpdateHeaderDisplay();
 
             var buttons = clock.hoursCanvas.Children.OfType<ClockButton>().ToList();
@@ -162,6 +166,9 @@ namespace UwpMaterialClock.Controls
 
         private void UpdateHeaderDisplay()
         {
+            if (this.hoursCanvas == null)
+                return;  // template hasn't been loaded yet
+
             if (this.Is24HoursEnabled)
                 this.textBlockHours.Text = this.Time.Hour.ToString("D2");
             else if (this.Time.Hour > 12)
@@ -402,9 +409,11 @@ namespace UwpMaterialClock.Controls
             this.SetDisplayMode(ClockItemMember.Minutes);
         }
 
-        private static bool IsUsing24HoursTime(CultureInfo culture)
+        private static bool IsUsing24HoursTime()
         {
-            return culture.DateTimeFormat.ShortTimePattern.Contains("h");
-        }
+            // a hack to get "real" culture when app runs on a machine where it's not localized (example: Finland)
+            var cultureName = new DateTimeFormatter("longdate", new[] { "US" }).ResolvedLanguage;
+            return new CultureInfo(cultureName).DateTimeFormat.ShortTimePattern.Contains("H");
+        }        
     }
 }
