@@ -215,11 +215,8 @@ namespace UwpMaterialClock.Controls
 
         private void SelectAppropriateButtons()
         {
-            this.selectedHoursButton = this.GetClockButtonForTime(ClockItemMember.Hours);
-            this.selectedHoursButton.IsChecked = true;
-
-            this.selectedMinutesButton = this.GetClockButtonForTime(ClockItemMember.Minutes);
-            this.selectedMinutesButton.IsChecked = true;
+            this.CheckButton(this.GetClockButtonForTime(ClockItemMember.Hours));
+            this.CheckButton(this.GetClockButtonForTime(ClockItemMember.Minutes));
         }
 
         private void SetDisplayMode(ClockItemMember mode)
