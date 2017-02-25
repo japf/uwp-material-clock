@@ -12,6 +12,7 @@ namespace UwpMaterialClock.Controls
         private readonly IClock owner;
         private readonly double centerX;
         private readonly double centerY;
+        private bool isDragging;
 
         public bool IsInner { get; }
 
@@ -68,12 +69,14 @@ namespace UwpMaterialClock.Controls
 
         private void OnDragDelta(object sender, DragDeltaEventArgs e)
         {
+            this.isDragging = true;
             this.owner.OnButtonDragDelta(this, e);
         }
 
         private void OnDragCompleted(object sender, DragCompletedEventArgs e)
         {
-            this.owner.OnButtonDragCompleted(this, e);
+            if (this.isDragging)
+                this.owner.OnButtonDragCompleted(this, e);
         }
     }
 }
