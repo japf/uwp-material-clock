@@ -17,7 +17,6 @@ namespace UwpMaterialClock.Controls
         private const double InnerRatio = 0.7;
         private Point dragPosition;
         private Point canvasCenter;
-        private ClockItemMember displayMode;
         private ClockButton selectedHoursButton;
         private ClockButton selectedMinutesButton;
         private Canvas hoursCanvas;
@@ -63,7 +62,19 @@ namespace UwpMaterialClock.Controls
             get { return (bool)this.GetValue(IsPostMeridiemProperty); }
             set { this.SetValue(IsPostMeridiemProperty, value); }
         }
-        
+
+        public static readonly DependencyProperty DisplayModeProperty = DependencyProperty.Register(
+            nameof(DisplayMode),
+            typeof(ClockItemMember),
+            typeof(Clock),
+            new PropertyMetadata(false, OnDisplayModeChanged));
+
+        public ClockItemMember DisplayMode
+        {
+            get { return (ClockItemMember)this.GetValue(DisplayModeProperty); }
+            set { this.SetValue(DisplayModeProperty, value); }
+        }
+
         public Clock()
         {
             // default to the system settings at initialization
@@ -93,6 +104,12 @@ namespace UwpMaterialClock.Controls
 
             clock.UpdateHeaderDisplay();
             clock.TimeChanged?.Invoke(clock, EventArgs.Empty);
+        }
+
+        private static void OnDisplayModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            Clock clock = (Clock) d;
+            VisualStateManager.GoToState(clock, (ClockItemMember)e.NewValue == ClockItemMember.Hours ? "Normal" : "Minutes", true);
         }
 
         private ClockButton GetClockButtonForTime(ClockItemMember member)
@@ -203,12 +220,12 @@ namespace UwpMaterialClock.Controls
             if (this.hoursLine == null)
                 throw new NotSupportedException("Could not find PART_HoursLine in the control template");
 
-            this.textBlockHours.Tapped += (s, e) => this.SetDisplayMode(ClockItemMember.Hours);
-            this.textBlockMinutes.Tapped += (s, e) => this.SetDisplayMode(ClockItemMember.Minutes);
+            this.textBlockHours.Tapped += (s, e) => this.DisplayMode = ClockItemMember.Hours;
+            this.textBlockMinutes.Tapped += (s, e) => this.DisplayMode = ClockItemMember.Minutes;
 
             this.GenerateButtons();
 
-            this.SetDisplayMode(ClockItemMember.Hours);
+            this.DisplayMode = ClockItemMember.Hours;
             this.UpdateHeaderDisplay();
             this.SelectAppropriateButtons();
         }
@@ -217,12 +234,6 @@ namespace UwpMaterialClock.Controls
         {
             this.CheckButton(this.GetClockButtonForTime(ClockItemMember.Hours));
             this.CheckButton(this.GetClockButtonForTime(ClockItemMember.Minutes));
-        }
-
-        private void SetDisplayMode(ClockItemMember mode)
-        {
-            this.displayMode = mode;
-            VisualStateManager.GoToState(this, mode == ClockItemMember.Hours ? "Normal" : "Minutes", true);
         }
 
         private void GenerateButtons()
@@ -309,7 +320,7 @@ namespace UwpMaterialClock.Controls
                 }
 
                 this.Time = new DateTime(this.Time.Year, this.Time.Month, this.Time.Day, hour, this.Time.Minute, 0);
-                this.SetDisplayMode(ClockItemMember.Minutes);
+                this.DisplayMode = ClockItemMember.Minutes;
 
                 if (this.selectedHoursButton != null)
                     this.selectedHoursButton.IsChecked = false;
@@ -366,7 +377,7 @@ namespace UwpMaterialClock.Controls
                 angle += 2 * Math.PI;
             
             DateTime time;
-            if (this.displayMode == ClockItemMember.Hours)
+            if (this.DisplayMode == ClockItemMember.Hours)
             {
                 if (this.Is24HoursEnabled)
                 {
@@ -403,7 +414,7 @@ namespace UwpMaterialClock.Controls
 
         public void OnButtonDragCompleted(ClockButton sender, DragCompletedEventArgs e)
         {
-            this.SetDisplayMode(ClockItemMember.Minutes);
+            this.DisplayMode = ClockItemMember.Minutes;
         }
 
         private static bool IsUsing24HoursTime()
