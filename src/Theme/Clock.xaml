@@ -153,9 +153,6 @@
 
     <Style TargetType="controls:Clock">
         <Style.Setters>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="LightGray"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="controls:Clock">
