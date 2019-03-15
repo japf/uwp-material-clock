@@ -3,8 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:UwpMaterialClock.Theme">
 
-    <SolidColorBrush x:Key="ApplicationPageBackgroundThemeBrush" Color="{ThemeResource SystemAltHighColor}" />
-    <SolidColorBrush x:Key="WindowTextBrush" Color="{ThemeResource SystemAltHighColor}" />
     <SolidColorBrush x:Key="ClockPrimaryBrush" Color="{ThemeResource SystemAccentColor}"/>
     <SolidColorBrush x:Key="ClockInnerBackgroundBrush" Color="{ThemeResource SystemChromeMediumColor}"/>
     <SolidColorBrush x:Key="ClockRadioButtonTextBrush" Color="{ThemeResource SystemChromeAltLowColor}"/>
