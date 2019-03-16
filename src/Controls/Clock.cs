@@ -307,10 +307,8 @@ namespace UwpMaterialClock.Controls
                 int hour = sender.Value;
                 if (this.Is24HoursEnabled)
                 {
-                    if (hour == 12)
+                    if (hour == 24)
                         hour = 0;
-                    else if (hour == 0)
-                        hour = 12;
                 }
                 else
                 {
